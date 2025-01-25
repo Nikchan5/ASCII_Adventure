@@ -2,16 +2,16 @@ import os
 import random
 
 map_lst = [['*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*' ,'*', '*'],
-           ['*', '₽', ' ', '$', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
-           ['*', ' ', '₽', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
-           ['*', ' ', '@', '₽', ' ', ' ', ' ', ' ', '₽', ' ', ' ', ' ' ,' ', '*'],
+           ['*', '&', ' ', '$', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
+           ['*', ' ', '&', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
+           ['*', ' ', '@', '&', ' ', ' ', ' ', ' ', '&', ' ', ' ', ' ' ,' ', '*'],
            ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
-           ['*', '₽', '$', '$', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
+           ['*', '&', '$', '$', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
            ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '$', '$', ' ', ' ' ,' ', '*'],
            ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
            ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
-           ['*', ' ', '₽', ' ', ' ', '₽', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
-           ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '₽', ' ', ' ' ,' ', '*'],
+           ['*', ' ', '&', ' ', ' ', '&', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
+           ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '&', ' ', ' ' ,' ', '*'],
            ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', '*'],
            ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*' ,'*', '*']]
 
@@ -24,7 +24,7 @@ def print_map():
     os.system('cls' if os.name == 'nt' else 'clear')
     for row in map_lst:
         print(''.join(row))
-    print(f"Собрано золота: {gold_collected}, убито гоблинов: {goblins_killed}, здоровье: {health}")
+    print(f"Gold collected: {gold_collected}, Goblins killed: {goblins_killed}, Health: {health}")
     print()
 
 def move(dx, dy):
@@ -41,27 +41,27 @@ def move(dx, dy):
         x, y = new_x, new_y
         map_lst[x][y] = '@'
         gold_collected += 1
-        print("Вы подобрали золото!")
+        print("You picked up gold!")
     elif target == '₽':
-        # 50% шанс на атаку
-        if random.random() < 0.5:  # Используем random.random() для более явного 50% шанса
+        # 50% chance for an attack
+        if random.random() < 0.5:  # Using random.random() for a more explicit 50% chance
             health -= 1
-            print("Гоблин атакует! Вы теряете 1 здоровье.")
+            print("A goblin attacks! You lose 1 health.")
             if health <= 0:
-                print("Вы погибли! Игра окончена.")
+                print("You died! Game over.")
                 exit()
         map_lst[x][y] = ' '
         x, y = new_x, new_y
         map_lst[x][y] = '@'
         goblins_killed += 1
-        print("Вы убили гоблина!")
+        print("You killed a goblin!")
     elif target == '*':
-        print("Вы не можете пройти сквозь стену!")
+        print("You can't pass through the wall!")
 
 print_map()
 
 while True:
-    move_input = input("Введите W/A/S/D для управления (или Q для выхода): ").lower()
+    move_input = input("Enter W/A/S/D to move (or Q to quit): ").lower()
     if move_input == 'w':
         move(-1, 0)
     elif move_input == 's':
@@ -71,8 +71,8 @@ while True:
     elif move_input == 'd':
         move(0, 1)
     elif move_input == 'q':
-        print("Выход из игры.")
+        print("Exiting the game.")
         break
     else:
-        print("Некорректная команда!")
+        print("Invalid command!")
     print_map()
