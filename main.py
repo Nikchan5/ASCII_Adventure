@@ -1,181 +1,178 @@
-import os
+############################
+# Name: ASCII Odyssey
+# Author: Eloen Dune
+# Studio: 5Handsnakes Studio
+# Version: 0.1.2
+# Last Update: 27.01.2025
+# Description: ASCII Odyssey is a console-based ASCII game created for fun. 
+#              Explore randomly generated dungeons, fight goblins, and survive 
+#              the depths of the odyssey.
+# Repository: https://github.com/Nikchan5/ASCII_Adventure.git
+# My Itchio: https://5handshakes-studio.itch.io/ 
+# Contact: eloen007@gmail.com (for feedback and inquiries)
+############################
+
 import random
-from colorama import Fore, init
+import os
+from colorama import Fore, Style
 
-init(autoreset=True)
-
-MAP_WIDTH = 14
-MAP_HEIGHT = 14
-
-WALL = '*'
+# Константы
 EMPTY = ' '
+WALL = '*'
 GOLD = '$'
 GOBLIN = '&'
 PLAYER = '@'
 
+# Функция для создания нового подземелья
 def generate_dungeon():
-    dungeon = [[WALL for _ in range(MAP_WIDTH)] for _ in range(MAP_HEIGHT)]
+    dungeon_one = [
+        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', '*', '*', '*', '*', ' ', ' ', '*', '*', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', ' ', '*'],
+        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
+    ]
 
-    def carve_path(x, y):
-        if x < 1 or y < 1 or x >= MAP_HEIGHT - 1 or y >= MAP_WIDTH - 1:
-            return
-        if dungeon[x][y] == EMPTY:
-            return
-        dungeon[x][y] = EMPTY
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        random.shuffle(directions)
-        for dx, dy in directions:
-            if 0 <= x + dx * 2 < MAP_HEIGHT and 0 <= y + dy * 2 < MAP_WIDTH:
-                carve_path(x + dx * 2, y + dy * 2)
-                dungeon[x + dx][y + dy] = EMPTY  # Ensure the path is continuous
+    dungeon_two = [
+        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', ' ', '*', '*', '*', '*', '*', '*', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', ' ', '*'],
+        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
+    ]
 
-    start_x, start_y = random.randint(1, MAP_HEIGHT // 2) * 2, random.randint(1, MAP_WIDTH // 2) * 2
-    carve_path(start_x, start_y)
+    dungeon_three = [
+        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', '*', '*', '*', '*', ' ', ' ', '*', '*', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
+        ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
+    ]
 
-    # Check and ensure connectivity
-    def is_connected():
-        visited = [[False for _ in range(MAP_WIDTH)] for _ in range(MAP_HEIGHT)]
-        stack = [(start_x, start_y)]  # Start from the initial carve point
+    # Список всех подземелий
+    dungeons = [dungeon_one, dungeon_two, dungeon_three]
+    return random.choice(dungeons)
 
-        while stack:
-            cx, cy = stack.pop()
-            if not visited[cx][cy] and dungeon[cx][cy] != WALL:
-                visited[cx][cy] = True
-                for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                    nx, ny = cx + dx, cy + dy
-                    if 0 <= nx < MAP_HEIGHT and 0 <= ny < MAP_WIDTH and not visited[nx][ny] and dungeon[nx][ny] != WALL:
-                        stack.append((nx, ny))
+# Игрок
+player_x = 1
+player_y = 1
 
-        # Check if all accessible cells are visited
-        for i in range(MAP_HEIGHT):
-            for j in range(MAP_WIDTH):
-                if dungeon[i][j] != WALL and not visited[i][j]:
-                    return False
-        return True
+# Счетчик монстров
+monster_count = 0
 
-    # Ensure dungeon connectivity
-    while not is_connected():
-        carve_path(random.randint(1, MAP_HEIGHT // 2) * 2, random.randint(1, MAP_WIDTH // 2) * 2)
+# Функция для случайной генерации золота и гоблинов на карте
+def place_items(dungeon, item, count):
+    """Распределяем элементы (золото или гоблинов) случайным образом по карте."""
+    global monster_count
+    map_height = len(dungeon)
+    map_width = len(dungeon[0])
+    
+    for _ in range(count):
+        while True:
+            # Генерируем случайные координаты, избегая стен
+            y = random.randint(1, map_height - 2)
+            x = random.randint(1, map_width - 2)
 
-    # Add gold and goblins
-    for _ in range(random.randint(5, 10)):
-        x, y = random.randint(1, MAP_HEIGHT - 2), random.randint(1, MAP_WIDTH - 2)
-        if dungeon[x][y] == EMPTY:
-            dungeon[x][y] = GOLD
+            # Проверка, чтобы координаты не выходили за пределы карты
+            if 0 <= y < map_height and 0 <= x < map_width and dungeon[y][x] == ' ':
+                dungeon[y][x] = item
+                if item == GOBLIN:
+                    monster_count += 1  # Увеличиваем счетчик монстров
+                break
 
-    for _ in range(random.randint(3, 7)):
-        x, y = random.randint(1, MAP_HEIGHT - 2), random.randint(1, MAP_WIDTH - 2)
-        if dungeon[x][y] == EMPTY:
-            dungeon[x][y] = GOBLIN
-
-    # Place the player at a valid spot
-    placed_player = False
-    while not placed_player:
-        player_x, player_y = random.randint(1, MAP_HEIGHT - 2), random.randint(1, MAP_WIDTH - 2)
-        if dungeon[player_x][player_y] == EMPTY:
-            dungeon[player_x][player_y] = PLAYER
-            placed_player = True
-
-    return dungeon
-
-def print_map(dungeon, gold_collected, goblins_killed, health):
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print(Fore.CYAN + "ASCII Odyssey V0.1")
-    for row in dungeon:
-        row_str = ''
-        for cell in row:
-            if cell == WALL:
-                row_str += Fore.RED + cell
-            elif cell == GOLD:
-                row_str += Fore.YELLOW + cell
-            elif cell == GOBLIN:
-                row_str += Fore.GREEN + cell
-            elif cell == PLAYER:
-                row_str += Fore.WHITE + cell
-            else:
-                row_str += cell
-        print(row_str)
-    print(f"Gold collected: {gold_collected}, Goblins killed: {goblins_killed}, Health: {health}")
-    print()
-
-def move_player(dungeon, x, y, dx, dy, gold_collected, goblins_killed, health):
-    new_x, new_y = x + dx, y + dy
-    if 0 <= new_x < MAP_HEIGHT and 0 <= new_y < MAP_WIDTH:
-        target = dungeon[new_x][new_y]
-        if target == EMPTY:
-            dungeon[x][y] = EMPTY
-            dungeon[new_x][new_y] = PLAYER
-            return new_x, new_y, gold_collected, goblins_killed, health
-        elif target == GOLD:
-            dungeon[x][y] = EMPTY
-            dungeon[new_x][new_y] = PLAYER
-            return new_x, new_y, gold_collected + 1, goblins_killed, health
-        elif target == GOBLIN:
-            if random.random() < 0.5:
-                health -= 1
-                if health <= 0:
-                    print("You died! Game over.")
-                    return x, y, gold_collected, goblins_killed, health  # No movement if dead
-            dungeon[x][y] = EMPTY
-            dungeon[new_x][new_y] = PLAYER
-            return new_x, new_y, gold_collected, goblins_killed + 1, health
-        elif target == WALL:
-            print("You can't pass through the wall!")
-    return x, y, gold_collected, goblins_killed, health  # If movement isn't valid, return current state
-
-def restart_game():
+# Генерация карты
+def generate_game():
+    global dungeon, player_x, player_y, monster_count, MAP_HEIGHT, MAP_WIDTH
     dungeon = generate_dungeon()
-    x, y = 3, 2
-    gold_collected = 0
-    goblins_killed = 0
-    health = 10
-    return dungeon, x, y, gold_collected, goblins_killed, health
+    MAP_HEIGHT, MAP_WIDTH = len(dungeon), len(dungeon[0])  # Обновляем размеры карты
+    player_x, player_y = 1, 1
+    monster_count = 0  # Обнуляем счетчик монстров
+    place_items(dungeon, GOLD, 3)  # Добавляем 3 золота
+    place_items(dungeon, GOBLIN, 3)  # Добавляем 3 гоблинов
 
-def inventory_and_heart(health, inventory):
-    print(f"Health: {health}")
-    print("Inventory: ", inventory)
+# Размеры подземелья
+def get_map_dimensions(dungeon):
+    """Получаем размеры карты."""
+    return len(dungeon), len(dungeon[0])
 
-dungeon = generate_dungeon()
-x, y = 3, 2
-gold_collected = 0
-goblins_killed = 0
-health = 10
-inventory = []
+MAP_HEIGHT, MAP_WIDTH = get_map_dimensions(generate_dungeon())
 
-print_map(dungeon, gold_collected, goblins_killed, health)
+def print_dungeon(dungeon):
+    """Вывод подземелья на экран."""
+    for y, row in enumerate(dungeon):
+        for x, cell in enumerate(row):
+            if x == player_x and y == player_y:
+                print(Fore.BLUE + PLAYER + Style.RESET_ALL, end='')  # Игрок
+            elif cell == GOLD:
+                print(Fore.YELLOW + cell + Style.RESET_ALL, end='')  # Золото
+            elif cell == GOBLIN:
+                print(Fore.RED + cell + Style.RESET_ALL, end='')  # Гоблин
+            else:
+                print(cell, end='')  # Пустое пространство или стена
+        print()
 
-try:
+def move_player(dx, dy, dungeon):
+    """Перемещение игрока."""
+    global player_x, player_y, monster_count
+    new_x = player_x + dx
+    new_y = player_y + dy
+
+    # Убедимся, что новые координаты в пределах карты
+    if 0 <= new_x < MAP_WIDTH and 0 <= new_y < MAP_HEIGHT:
+        if dungeon[new_y][new_x] != WALL:
+            player_x, player_y = new_x, new_y
+            if dungeon[new_y][new_x] == GOLD:
+                print(Fore.YELLOW + "Вы собрали золото!" + Style.RESET_ALL)
+                dungeon[new_y][new_x] = EMPTY
+            elif dungeon[new_y][new_x] == GOBLIN:
+                print(Fore.RED + "Вы встретили гоблина!" + Style.RESET_ALL)
+                dungeon[new_y][new_x] = EMPTY
+                monster_count -= 1  # Уменьшаем количество монстров
+
+def clear_screen():
+    """Очистка экрана для Windows и UNIX-систем."""
+    if os.name == 'nt':
+        os.system('cls')  # Windows
+    else:
+        os.system('clear')  # Linux/macOS
+
+def main():
+    global dungeon  # Убедимся, что dungeon доступна
+    generate_game()  # Инициализируем игру с новым подземельем
+
     while True:
-        move_input = input("Enter W/A/S/D to move (or Q to quit, R to restart, I to check inventory): ").lower()
+        clear_screen()  # Очищаем экран
+        print_dungeon(dungeon)
+        print("\nИспользуйте W/A/S/D для перемещения.")
+        print("Нажмите 'r' для рестарта.")
+        if monster_count == 0:  # Если монстров больше нет
+            print("Вы убили всех монстров! Переход на новый уровень...")
+            dungeon = generate_dungeon()  # Переход на новый уровень (новую карту)
+            MAP_HEIGHT, MAP_WIDTH = len(dungeon), len(dungeon[0])  # Обновляем размеры карты
+            place_items(dungeon, GOLD, 3)  # Добавляем золото
+            place_items(dungeon, GOBLIN, 3)  # Добавляем новых монстров
 
-        # Ensure the input is not empty before checking
-        if move_input == '':
-            print("Please enter a valid command.")
-            continue
-
-        if move_input in 'wasd':
-            dx, dy = {'w': (-1, 0), 's': (1, 0), 'a': (0, -1), 'd': (0, 1)}[move_input]
-            x, y, gold_collected, goblins_killed, health = move_player(dungeon, x, y, dx, dy, gold_collected, goblins_killed, health)
-
-        elif move_input == 'q':
-            print("Exiting the game.")
+        move = input("Ваш ход: ").lower()
+        if move == 'w':
+            move_player(0, -1, dungeon)
+        elif move == 'a':
+            move_player(-1, 0, dungeon)
+        elif move == 's':
+            move_player(0, 1, dungeon)
+        elif move == 'd':
+            move_player(1, 0, dungeon)
+        elif move == 'r':
+            print("Игра перезапущена!")
+            generate_game()  # Перезапуск игры
+        elif move == 'q':
+            print("Вы вышли из игры.")
             break
 
-        elif move_input == 'r':
-            dungeon, x, y, gold_collected, goblins_killed, health = restart_game()
-            print("Game restarted!")
-
-        elif move_input == 'i':
-            inventory_and_heart(health, inventory)
-
-        else:
-            print("Invalid command!")
-
-        print_map(dungeon, gold_collected, goblins_killed, health)
-
-        if goblins_killed == 11:
-            print("You win!")
-            break
-
-except KeyboardInterrupt:
-    print("\nGame interrupted. Exiting...")
+if __name__ == '__main__':
+    main()
