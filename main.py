@@ -4,11 +4,11 @@
 # Studio: 5Handsnakes Studio
 # Version: 0.1.2
 # Last Update: 27.01.2025
-# Description: ASCII Odyssey is a console-based ASCII game created for fun. 
-#              Explore randomly generated dungeons, fight goblins, and survive 
+# Description: ASCII Odyssey is a console-based ASCII game created for fun.
+#              Explore randomly generated dungeons, fight goblins, and survive
 #              the depths of the odyssey.
 # Repository: https://github.com/Nikchan5/ASCII_Adventure.git
-# My Itchio: https://5handshakes-studio.itch.io/ 
+# My Itchio: https://5handshakes-studio.itch.io/
 # Contact: eloen007@gmail.com (for feedback and inquiries)
 ############################
 
@@ -110,10 +110,10 @@ def move_player(dx, dy, dungeon):
         if dungeon[new_y][new_x] != WALL:
             player_x, player_y = new_x, new_y
             if dungeon[new_y][new_x] == GOLD:
-                print(Fore.YELLOW + "Вы собрали золото!" + Style.RESET_ALL)
+                print(Fore.YELLOW + "You collected gold!" + Style.RESET_ALL)
                 dungeon[new_y][new_x] = EMPTY
             elif dungeon[new_y][new_x] == GOBLIN:
-                print(Fore.RED + "Вы встретили гоблина!" + Style.RESET_ALL)
+                print(Fore.RED + "You encountered a goblin!" + Style.RESET_ALL)
                 dungeon[new_y][new_x] = EMPTY
                 monster_count -= 1
 
@@ -130,16 +130,16 @@ def main():
     while True:
         clear_screen()
         print_dungeon(dungeon)
-        print("\nИспользуйте W/A/S/D для перемещения.")
-        print("Нажмите 'r' для рестарта.")
+        print("\nUse W/A/S/D to move.")
+        print("Press 'r' to restart.")
         if monster_count == 0:
-            print("Вы убили всех монстров! Переход на новый уровень...")
+            print("You killed all monsters! Proceeding to the next level...")
             dungeon = generate_dungeon()
             MAP_HEIGHT, MAP_WIDTH = len(dungeon), len(dungeon[0])
             place_items(dungeon, GOLD, 3)
             place_items(dungeon, GOBLIN, 3)
 
-        move = input("Ваш ход: ").lower()
+        move = input("Your move: ").lower()
         if move == 'w':
             move_player(0, -1, dungeon)
         elif move == 'a':
@@ -149,10 +149,10 @@ def main():
         elif move == 'd':
             move_player(1, 0, dungeon)
         elif move == 'r':
-            print("Игра перезапущена!")
+            print("Game restarted!")
             generate_game()
         elif move == 'q':
-            print("Вы вышли из игры.")
+            print("You exited the game.")
             break
 
 if __name__ == '__main__':
